@@ -66,43 +66,25 @@ counter = 0
 # Получение списка строк таблицы
 lines = re.findall(r'<div class="Table-module_row__3TH83">.*?</div>.*?</div>.*?</div>.*?</div>.*?</div>', r.text)
 for line in lines:
-    # print(line)
     # извлечение заголовков таблицы
     if counter == 0:
         # Удаление тегов
-        headers = re.sub(
-            r'<div class="Table-module_row__3TH83">|'
-            r'</div>|'
-            r'<div class="Table-module_cell__EFKDW Table-module_header__1exlo Table-module_gray__3da6S Table-module_m__29G9r">|'
-            r'<div class="Table-module_cell__EFKDW Table-module_white__gzvo0 Table-module_s__Vl_Eg">|'
-            r'<div class="Table-module_cell__EFKDW Table-module_header__1exlo Table-module_gray__3da6S Table-module_s__Vl_Eg">', "", line)
+        headers = re.sub(r'\<[^>]*\>', "", line)
         # Извлечение списка заголовков
         headers = re.findall('[А-Я][^А-Я]*', headers)
     else:
-        temp = re.sub(
-            r'<div class="Table-module_row__3TH83"><div class="Table-module_cell__EFKDW Table-module_white__gzvo0 Table-module_m__29G9r">|'
-            r'</div>|'
-            r'<div class="Table-module_cell__EFKDW Table-module_white__gzvo0 Table-module_s__Vl_Eg">|'
-            r'<span style="color:#5C5E62;font-size:10px">|'
-            r'</span>|'
-            r'<div class="Table-module_row__3TH83"><div class="Table-module_cell__EFKDW Table-module_gray__3da6S Table-module_m__29G9r">|'
-            r'<strong>|'
-            r'</strong>|'
-            r'<div class="Table-module_cell__EFKDW Table-module_gray__3da6S Table-module_s__Vl_Eg">', ';', line)
+        temp = re.sub(r'\<[^>]*\>', ';', line)
         temp = re.sub(r'\([^)]*\)', '', temp)
         # Замена последовательности символов ';' на одиночный символ
         temp = re.sub(r"([;])\1+", r"\1", temp)
         # Удаление символа ';' в начале и в конце строки
         temp = temp.strip(";")
-        if temp.find("Всего") != -1:
-            temp = temp[4:]
+        temp = re.sub(r'^\W+', '', temp)
+
         # Разбитие строки на подстроки
         tmp_split = temp.split(";")
         # Извлечение и обработка (удаление "лишних" символов) данных из первого столбца
         country_name = tmp_split[0]
-        if country_name.find("Всего") == -1:
-            country_name = country_name[3:]
-        country_name = country_name.strip(" ")
         # Извлечение данных из оставшихся столбцов. Данные из этих столбцов должны иметь числовое значение (прочерк можно заменить на -1).
         # Некоторые строки содержат пробелы в виде символа '\xa0'.
         col1_val = tmp_split[1]
@@ -116,7 +98,6 @@ for line in lines:
         col2_val = re.sub(r'\xa0', '', col2_val)
         col3_val = re.sub(r'\xa0', '', col3_val)
         col4_val = re.sub(r'\xa0', '', col4_val)
-
         # Запись извлеченных данных в словарь
         result_dct[country_name] = ([int(col1_val), int(col2_val), int(col3_val), int(col4_val)])
     counter += 1
