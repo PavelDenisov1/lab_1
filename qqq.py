@@ -14,6 +14,17 @@ arch_file = 'C:\\Users\\ACER\\Desktop\\tiff-4.2.0_lab1.zip'  # путь к ар�
 #     zip_file.extractall(directory_to_extract_to)
 
 
+# Задание №2.1
+# Получить список файлов (полный путь) формата txt, находящихся в directory_to_extract_to. Сохранить полученный список в txt_files
+txt_files = []
+for r, d, f in os.walk(directory_to_extract_to):
+    for file in f:
+        if file.endswith(".txt"):
+            txt_files.append(os.path.join(r, file))
+
+# Задание №2.2
+# Получить значения MD5 хеша для найденных файлов и вывести полученные данные на экран.
+
 for file in txt_files:
     target_file_data = open(file, 'rb').read()
     result = hashlib.md5(target_file_data).hexdigest()
